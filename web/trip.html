@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curva · Trip</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <p id="status" class="muted" role="status">Loading trip…</p>
+
+    <section id="trip" hidden>
+      <div>
+        <p class="label">Trip</p>
+        <h1 id="trip-title"></h1>
+        <a id="master-link" class="link" target="_blank" rel="noopener" hidden>Open the master route map</a>
+      </div>
+
+      <p id="trip-done" class="banner" hidden></p>
+
+      <!-- Shown until this phone picks a car -->
+      <section id="join" hidden>
+        <h2>Which car are you?</h2>
+        <ol id="car-choices" class="choices"></ol>
+        <label for="car-name">Or add your car</label>
+        <div class="row">
+          <input id="car-name" type="text" maxlength="40" placeholder="Car 2: Anna" autocomplete="off">
+          <button type="button" id="join-car">Join</button>
+        </div>
+      </section>
+
+      <!-- Shown once this phone has picked a car -->
+      <section id="mine" hidden>
+        <div>
+          <p class="label">Your car</p>
+          <h2 id="my-name"></h2>
+        </div>
+
+        <div>
+          <div class="progress" aria-hidden="true"><span id="my-bar"></span></div>
+          <p id="my-progress" class="muted"></p>
+        </div>
+
+        <div id="next-card" class="next-card">
+          <p class="label">Next stop</p>
+          <p id="next-name" class="next-name"></p>
+          <div id="next-nav" class="nav-row"></div>
+          <button type="button" id="mark-reached" class="primary">Mark as reached</button>
+        </div>
+
+        <p id="my-finished" class="banner" hidden>Your car has reached the last stop.</p>
+
+        <div class="row">
+          <button type="button" id="undo">Undo last check-in</button>
+          <button type="button" id="switch-car" class="quiet">Switch car</button>
+        </div>
+      </section>
+
+      <h2>Group</h2>
+      <ol id="cars-list" class="cars" aria-label="Cars"></ol>
+
+      <h2>All stops</h2>
+      <ol id="stop-list" class="stops" aria-label="All stops"></ol>
+
+      <button type="button" id="complete-trip" class="quiet">Complete trip</button>
+
+      <p id="message" class="error" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+  <script src="trip.js"></script>
+</body>
+</html>

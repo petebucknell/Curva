@@ -1,0 +1,179 @@
+:root {
+  color-scheme: light dark;
+  --accent: #2b6cb0;
+  --border: #c9ced6;
+  --muted: #6b7280;
+  --danger: #b42318;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+/* Keep hidden elements hidden even when a class sets display. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.4;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+h1 { font-size: 26px; margin: 8px 0 4px; }
+h2 { font-size: 18px; margin: 16px 0 4px; }
+
+form, section { display: flex; flex-direction: column; gap: 8px; }
+
+label { font-weight: 600; margin-top: 8px; }
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+}
+
+.row { display: flex; gap: 8px; }
+.row input { flex: 1; min-width: 0; }
+
+button {
+  font: inherit;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.stops {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stops li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.stops .num { color: var(--muted); min-width: 1.5em; text-align: right; }
+.stops .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.stops button { padding: 6px 10px; }
+.stops button.remove { color: var(--danger); }
+
+.muted { color: var(--muted); font-size: 14px; margin: 0; }
+.error { color: var(--danger); margin: 0; }
+.label { color: var(--muted); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0; }
+
+.progress {
+  height: 8px;
+  border-radius: var(--radius);
+  background: var(--border);
+  overflow: hidden;
+}
+.progress > span { display: block; height: 100%; background: var(--accent); }
+
+.next-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+}
+.next-name { font-size: 22px; font-weight: 700; margin: 0; overflow-wrap: anywhere; }
+
+.banner {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stops .tick {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+.stops .done .tick { background: var(--accent); border-color: var(--accent); color: #fff; }
+.stops .done .name { color: var(--muted); text-decoration: line-through; }
+.stops .next { border-color: var(--accent); font-weight: 600; }
+.stops .next .tick { border-color: var(--accent); }
+.stops li .nav-row { flex: none; }
+.stops li .icon-btn { padding: 6px 8px; }
+
+.nav-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  color: inherit;
+  text-decoration: none;
+  font-size: 14px;
+}
+.icon-btn svg { width: 20px; height: 20px; flex: none; }
+
+.link { color: var(--accent); font-size: 15px; }
+
+.quiet { background: transparent; border-color: transparent; color: var(--muted); }
+.row button:not(.primary) { flex: none; }
+
+.choices, .cars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.choices button { width: 100%; text-align: left; }
+
+.car {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.car-header { display: flex; justify-content: space-between; gap: 8px; }
+.car-header .name { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.car p { margin: 0; }

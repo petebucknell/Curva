@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curva · New trip</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <h1>New trip</h1>
+
+    <form id="trip-form" novalidate>
+      <label for="trip-name">Trip name</label>
+      <input id="trip-name" type="text" maxlength="80" placeholder="Swiss three-pass loop" autocomplete="off">
+
+      <label for="master-url">Master route link (optional)</label>
+      <input id="master-url" type="url" maxlength="500" placeholder="https://www.google.com/maps/d/…" autocomplete="off">
+
+      <label for="stop-name">Add a stop</label>
+      <div class="row">
+        <input id="stop-name" type="text" maxlength="120" placeholder="Susten Pass" autocomplete="off">
+        <button type="button" id="add-stop">Add</button>
+      </div>
+
+      <ol id="stop-list" class="stops" aria-label="Stops in order"></ol>
+      <p id="stop-empty" class="muted">No stops yet. Add them in the order you'll drive them.</p>
+
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <button type="submit" class="primary">Create trip link</button>
+    </form>
+
+    <section id="result" hidden>
+      <h2>Share this link</h2>
+      <div class="row">
+        <input id="trip-link" type="text" readonly>
+        <button type="button" id="copy-link">Copy</button>
+      </div>
+      <p class="muted">Everyone in the group opens this link and sees the same next stop.</p>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
