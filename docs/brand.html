@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curva · Brand guide</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .swatches { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .swatch { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .swatch .chip { height: 72px; }
+    .swatch .info { padding: 10px; font-size: 14px; }
+    .swatch .info strong { display: block; }
+    .logos { display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+    .type-sample { margin: 0; }
+    .draft { padding: 12px; border-radius: var(--radius); border: 1px dashed var(--accent); color: var(--accent); font-size: 14px; }
+    ul.plain { margin: 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="label">Brand guide · Draft</p>
+    <h1>Curva</h1>
+    <p class="draft">Everything on this page is a proposal. Change any part and we'll update the site to match.</p>
+
+    <section>
+      <h2>What Curva is</h2>
+      <p>Curva helps a group follow one planned road trip, stop by stop. <em>Curva</em> is the Italian and Portuguese word for "curve", which suits the winding roads it's built for.</p>
+    </section>
+
+    <section>
+      <h2>Logo</h2>
+      <p class="muted">A road curving through a rounded square. It works in one colour too.</p>
+      <div class="logos">
+        <svg width="96" height="96" viewBox="0 0 48 48" role="img" aria-label="Curva logo">
+          <rect width="48" height="48" rx="10" fill="#2b6cb0"/>
+          <path d="M14 40 C 34 34, 14 26, 30 20 S 34 8, 24 8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <svg width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Curva logo, small">
+          <rect width="48" height="48" rx="10" fill="#2b6cb0"/>
+          <path d="M14 40 C 34 34, 14 26, 30 20 S 34 8, 24 8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <svg width="24" height="24" viewBox="0 0 48 48" role="img" aria-label="Curva logo, icon size">
+          <rect width="48" height="48" rx="10" fill="#2b6cb0"/>
+          <path d="M14 40 C 34 34, 14 26, 30 20 S 34 8, 24 8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </section>
+
+    <section>
+      <h2>Colours</h2>
+      <div class="swatches">
+        <div class="swatch">
+          <div class="chip" style="background:#2b6cb0"></div>
+          <div class="info"><strong>Road blue</strong>#2b6cb0. Main buttons, progress, and the logo.</div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background:#1a1a1a"></div>
+          <div class="info"><strong>Ink</strong>#1a1a1a. Main text.</div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background:#6b7280"></div>
+          <div class="info"><strong>Slate</strong>#6b7280. Secondary text and labels.</div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background:#c9ced6"></div>
+          <div class="info"><strong>Mist</strong>#c9ced6. Borders and dividers.</div>
+        </div>
+        <div class="swatch">
+          <div class="chip" style="background:#b42318"></div>
+          <div class="info"><strong>Stop red</strong>#b42318. Errors only, never decoration.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Type</h2>
+      <p class="type-sample" style="font-size:26px; font-weight:700">Headline, 26px bold</p>
+      <p class="type-sample" style="font-size:18px; font-weight:600">Section heading, 18px</p>
+      <p class="type-sample">Body text, 16px. Clear and short sentences.</p>
+      <p class="label">Label, 12px capitals</p>
+      <p class="muted">Font: the system font on each phone (San Francisco on iPhone, Roboto on Android). No extra downloads, so the site loads fast.</p>
+    </section>
+
+    <section>
+      <h2>Voice</h2>
+      <ul class="plain">
+        <li><strong>Clear.</strong> "Mark as reached", not "Check in!"</li>
+        <li><strong>Calm.</strong> Short sentences. No exclamation marks.</li>
+        <li><strong>Practical.</strong> Say what happens next: "Everyone sees this update."</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Open decisions</h2>
+      <ul class="plain">
+        <li>Do you like the road-blue colour, or would you like something different?</li>
+        <li>Do you want a tagline under the name?</li>
+        <li>Should the logo include the word "Curva", or stay as the symbol alone?</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
