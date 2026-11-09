@@ -4,4 +4,6 @@
 window.CURVA_CONFIG = {
   url: "https://hkhzgxzebciutavcwfvx.supabase.co",
   anonKey: "sb_publishable_x_o4VKujUDio6gdwFpbwaw_ur0ew441",
+  // Off until the accounts migration is on this project. Then trips need a signed-in person.
+  requireSignIn: false,
 };

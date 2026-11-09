@@ -15,9 +15,13 @@
     <header class="brand">
       <a class="wordmark" href="index.html">Curva</a>
       <span class="tagline">For the love of the drive</span>
+      <div id="account" class="account"></div>
     </header>
 
     <h1>New trip</h1>
+
+    <!-- Shown when creating a trip needs a signed-in person -->
+    <section id="signin" hidden></section>
 
     <form id="trip-form" novalidate>
       <label for="trip-name">Trip name</label>
@@ -51,6 +55,7 @@
   </main>
 
   <script src="config.js"></script>
+  <script src="auth.js"></script>
   <script src="api.js"></script>
   <script src="app.js"></script>
 </body>

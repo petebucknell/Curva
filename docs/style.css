@@ -237,3 +237,10 @@ button.primary {
 .car-header .name { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .car-header .muted { font-family: var(--mono); font-size: 12px; }
 .car p { margin: 0; }
+
+/* Sign-in */
+.brand { flex-wrap: wrap; }
+.account { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.account .muted { font-size: 12px; overflow-wrap: anywhere; }
+.account button { padding: 4px 8px; font-size: 13px; }
+.step { display: flex; flex-direction: column; gap: 10px; }
