@@ -1,0 +1,196 @@
+kind,name,definition,acl
+column,cars.checked_in_at,"timestamp with time zone, nullable=NO, default=now()",null
+column,cars.created_at,"timestamp with time zone, nullable=NO, default=now()",null
+column,cars.id,"uuid, nullable=NO, default=gen_random_uuid()",null
+column,cars.name,"text, nullable=NO, default=",null
+column,cars.reached,"integer, nullable=NO, default=0",null
+column,cars.trip_id,"uuid, nullable=NO, default=",null
+column,trips.completed_at,"timestamp with time zone, nullable=YES, default=",null
+column,trips.created_at,"timestamp with time zone, nullable=NO, default=now()",null
+column,trips.id,"uuid, nullable=NO, default=gen_random_uuid()",null
+column,trips.master_url,"text, nullable=YES, default=",null
+column,trips.name,"text, nullable=NO, default=",null
+column,trips.stops,"jsonb, nullable=NO, default=",null
+function,complete_trip,"CREATE OR REPLACE FUNCTION public.complete_trip(p_trip uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  if not exists (select 1 from public.trips where id = p_trip) then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  update public.trips set completed_at = coalesce(completed_at, now()) where id = p_trip;
+
+  return public.trip_state(p_trip) || jsonb_build_object('status', 'ok');
+end;
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+function,create_trip,"CREATE OR REPLACE FUNCTION public.create_trip(p_name text, p_stops jsonb, p_master_url text DEFAULT NULL::text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  new_id uuid;
+  clean_name text := btrim(coalesce(p_name, ''));
+  clean_master text := nullif(btrim(coalesce(p_master_url, '')), '');
+begin
+  if char_length(clean_name) not between 1 and 80 then
+    raise exception 'trip name must be 1 to 80 characters';
+  end if;
+  if jsonb_typeof(p_stops) is distinct from 'array' then
+    raise exception 'stops must be a list';
+  end if;
+  if jsonb_array_length(p_stops) not between 1 and 50 then
+    raise exception 'a trip needs 1 to 50 stops';
+  end if;
+  -- A stop is either a name, or an object with a name and optional waze and google links.
+  if exists (
+    select 1 from jsonb_array_elements(p_stops) as e
+    where not (
+      (jsonb_typeof(e) = 'string' and char_length(btrim(e #>> '{}')) between 1 and 120)
+      or (jsonb_typeof(e) = 'object' and char_length(btrim(coalesce(e ->> 'name', ''))) between 1 and 120)
+    )
+  ) then
+    raise exception 'each stop needs a name of 1 to 120 characters';
+  end if;
+  if clean_master is not null and (clean_master !~ '^https://' or char_length(clean_master) > 500) then
+    raise exception 'master route must be an https link of up to 500 characters';
+  end if;
+
+  insert into public.trips (name, stops, master_url)
+  values (clean_name, p_stops, clean_master)
+  returning id into new_id;
+
+  return new_id;
+end;
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+function,get_trip,"CREATE OR REPLACE FUNCTION public.get_trip(p_id uuid)
+ RETURNS jsonb
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  select public.trip_state(p_id);
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+function,join_car,"CREATE OR REPLACE FUNCTION public.join_car(p_trip uuid, p_name text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  clean_name text := btrim(coalesce(p_name, ''));
+  new_id uuid;
+begin
+  if char_length(clean_name) not between 1 and 40 then
+    raise exception 'car name must be 1 to 40 characters';
+  end if;
+  if not exists (select 1 from public.trips where id = p_trip) then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+  if (select count(*) from public.cars where trip_id = p_trip) >= 20 then
+    raise exception 'a trip can have up to 20 cars';
+  end if;
+
+  insert into public.cars (trip_id, name)
+  values (p_trip, clean_name)
+  returning id into new_id;
+
+  return public.trip_state(p_trip) || jsonb_build_object('status', 'ok', 'car_id', new_id);
+end;
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+function,mark_car,"CREATE OR REPLACE FUNCTION public.mark_car(p_car uuid, p_expected integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  c public.cars;
+  total integer;
+  finished_at timestamptz;
+begin
+  select * into c from public.cars where id = p_car for update;
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  select jsonb_array_length(stops), completed_at into total, finished_at
+  from public.trips where id = c.trip_id;
+
+  if finished_at is not null then
+    return public.trip_state(c.trip_id) || jsonb_build_object('status', 'completed', 'car_id', c.id);
+  end if;
+  if c.reached <> p_expected then
+    return public.trip_state(c.trip_id) || jsonb_build_object('status', 'conflict', 'car_id', c.id);
+  end if;
+  if c.reached >= total then
+    return public.trip_state(c.trip_id) || jsonb_build_object('status', 'finished', 'car_id', c.id);
+  end if;
+
+  update public.cars set reached = reached + 1, checked_in_at = now() where id = p_car;
+
+  return public.trip_state(c.trip_id) || jsonb_build_object('status', 'ok', 'car_id', p_car);
+end;
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+function,trip_state,"CREATE OR REPLACE FUNCTION public.trip_state(p_trip uuid)
+ RETURNS jsonb
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  select jsonb_build_object(
+    'trip', to_jsonb(t),
+    'cars', coalesce(
+      (select jsonb_agg(to_jsonb(c) order by c.created_at) from public.cars c where c.trip_id = t.id),
+      '[]'::jsonb
+    )
+  )
+  from public.trips t
+  where t.id = p_trip;
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+function,undo_car,"CREATE OR REPLACE FUNCTION public.undo_car(p_car uuid, p_expected integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  c public.cars;
+  finished_at timestamptz;
+begin
+  select * into c from public.cars where id = p_car for update;
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  select completed_at into finished_at from public.trips where id = c.trip_id;
+
+  if finished_at is not null then
+    return public.trip_state(c.trip_id) || jsonb_build_object('status', 'completed', 'car_id', c.id);
+  end if;
+  if c.reached <> p_expected then
+    return public.trip_state(c.trip_id) || jsonb_build_object('status', 'conflict', 'car_id', c.id);
+  end if;
+  if c.reached = 0 then
+    return public.trip_state(c.trip_id) || jsonb_build_object('status', 'nothing_to_undo', 'car_id', c.id);
+  end if;
+
+  update public.cars set reached = reached - 1, checked_in_at = now() where id = p_car;
+
+  return public.trip_state(c.trip_id) || jsonb_build_object('status', 'ok', 'car_id', p_car);
+end;
+$function$
+","{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}"
+rows,cars,8,null
+rows,trips,10,null
