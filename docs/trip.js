@@ -33,6 +33,8 @@ const carsList = document.getElementById("cars-list");
 const stopList = document.getElementById("stop-list");
 const completeButton = document.getElementById("complete-trip");
 const messageBox = document.getElementById("message");
+const signinSection = document.getElementById("signin");
+const accountBar = document.getElementById("account");
 
 let state = null; // { trip, cars } from the server
 let myCarId = localStorage.getItem(carKey);
@@ -90,6 +92,13 @@ function showMessage(text) {
 function hideMessage() {
   messageBox.hidden = true;
   messageBox.textContent = "";
+}
+
+// api.js throws this when a saved session was refused. The fix is to sign in again.
+function sessionEnded(error) {
+  if (!error.message.includes("[CURVA_SESSION_EXPIRED]")) return false;
+  needSignIn("Your sign-in has ended. Sign in again to keep going.");
+  return true;
 }
 
 function formatTime(iso) {
@@ -236,6 +245,32 @@ function render() {
   statusBox.hidden = true;
 }
 
+// Asks the person to sign in. Built once, so the 15 second refresh doesn't wipe a half-typed code.
+function needSignIn(message) {
+  if (!signinSection.hidden) return;
+  if (!state) statusBox.hidden = true;
+  signinSection.hidden = false;
+  mountSignIn(signinSection, {
+    message,
+    onSignedIn: () => {
+      signinSection.hidden = true;
+      signinSection.replaceChildren();
+      hideMessage();
+      renderAccountBar(accountBar, onAccountChange);
+      load();
+    },
+  });
+}
+
+// After sign-out the page asks again, so a trip that needs an account is not left open.
+function onAccountChange() {
+  state = null;
+  tripSection.hidden = true;
+  statusBox.hidden = false;
+  statusBox.textContent = "Loading trip…";
+  load();
+}
+
 async function load() {
   try {
     const data = await callFunction("get_trip", { p_id: tripId });
@@ -243,9 +278,14 @@ async function load() {
       statusBox.textContent = "This trip doesn't exist. Check the link.";
       return;
     }
+    if (data.status === "sign_in_required") {
+      needSignIn("This trip is private. Sign in with your email to see it and join.");
+      return;
+    }
     state = data;
     render();
   } catch (error) {
+    if (sessionEnded(error)) return;
     if (!state) {
       statusBox.textContent = error.message;
     } else {
@@ -264,8 +304,10 @@ function applyResult(result) {
     completed: "The trip is completed, so check-ins are closed.",
     nothing_to_undo: "Nothing to undo yet.",
     not_found: "That car no longer exists. Pick your car again.",
+    forbidden: "You can only change your own car, and only the planner can complete the trip.",
   };
   if (messages[result.status]) showMessage(messages[result.status]);
+  if (result.status === "sign_in_required") needSignIn("Your sign-in has ended. Sign in again to keep checking in.");
   if (result.status === "not_found") {
     myCarId = null;
     localStorage.removeItem(carKey);
@@ -282,7 +324,7 @@ async function runCarAction(functionName, body) {
   try {
     applyResult(await callFunction(functionName, body));
   } catch (error) {
-    showMessage(`Couldn't save that: ${error.message}`);
+    if (!sessionEnded(error)) showMessage(`Couldn't save that: ${error.message}`);
   } finally {
     busy = false;
     if (state) render();
@@ -324,11 +366,13 @@ async function joinNewCar() {
       state = { trip: result.trip, cars: result.cars };
       chooseCar(result.car_id);
       carNameInput.value = "";
+    } else if (result.status === "sign_in_required") {
+      needSignIn("Sign in with your email to join this trip.");
     } else {
       showMessage("This trip no longer exists.");
     }
   } catch (error) {
-    showMessage(`Couldn't join: ${error.message}`);
+    if (!sessionEnded(error)) showMessage(`Couldn't join: ${error.message}`);
   } finally {
     busy = false;
     joinButton.disabled = false;
@@ -343,7 +387,7 @@ async function completeTrip() {
   try {
     applyResult(await callFunction("complete_trip", { p_trip: tripId }));
   } catch (error) {
-    showMessage(`Couldn't complete the trip: ${error.message}`);
+    if (!sessionEnded(error)) showMessage(`Couldn't complete the trip: ${error.message}`);
   } finally {
     busy = false;
     if (state) render();
@@ -369,6 +413,7 @@ completeButton.addEventListener("click", completeTrip);
 if (!tripId) {
   statusBox.textContent = "This link has no trip in it. Ask the person who shared it for the full link.";
 } else {
+  renderAccountBar(accountBar, onAccountChange);
   load();
   setInterval(() => {
     if (!busy && document.visibilityState === "visible") load();

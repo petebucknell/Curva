@@ -120,7 +120,11 @@ form.addEventListener("submit", async (event) => {
     result.hidden = false;
     tripLink.select();
   } catch (error) {
-    showError(error.message);
+    if (error.message.includes("[CURVA_SESSION_EXPIRED]")) {
+      showFormOrSignIn();
+    } else {
+      showError(error.message);
+    }
   } finally {
     createButton.disabled = false;
   }
@@ -135,6 +139,29 @@ copyButton.addEventListener("click", async () => {
   }
 });
 
+const signinSection = document.getElementById("signin");
+const accountBar = document.getElementById("account");
+
+// With sign-in switched on, the form waits for a session. Off, the page works as before.
+async function showFormOrSignIn() {
+  renderAccountBar(accountBar, showFormOrSignIn);
+  if (!signInRequired()) return;
+
+  const session = await getSession();
+  form.hidden = !session;
+  if (session) {
+    signinSection.hidden = true;
+    signinSection.replaceChildren();
+    return;
+  }
+  result.hidden = true;
+  signinSection.hidden = false;
+  mountSignIn(signinSection, {
+    message: "Sign in with your email to create a trip. Friends will sign in the same way to join.",
+    onSignedIn: showFormOrSignIn,
+  });
+}
+
 addButton.addEventListener("click", addStop);
 
 stopName.addEventListener("keydown", (event) => {
@@ -145,3 +172,4 @@ stopName.addEventListener("keydown", (event) => {
 });
 
 render();
+showFormOrSignIn();
