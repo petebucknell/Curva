@@ -1,8 +1,10 @@
-// Calls one of the database functions in supabase/schema.sql through Supabase's REST endpoint.
+// Calls one of the database functions in supabase/schema-v2.sql through Supabase's REST endpoint.
 async function callFunction(name, body) {
   const { url, anonKey } = window.CURVA_CONFIG;
   if (url.includes("YOUR-PROJECT") || anonKey.includes("YOUR-ANON-KEY")) {
-    throw new Error("Supabase is not configured yet. Fill in web/config.js.");
+    throw new Error(
+      `Could not run "${name}": Supabase is not configured. Set url and anonKey in docs/config.js. [CURVA_CONFIG_MISSING]`
+    );
   }
 
   const response = await fetch(`${url}/rest/v1/rpc/${name}`, {
