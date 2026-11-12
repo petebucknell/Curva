@@ -282,21 +282,26 @@ function mountSignIn(container, { message, onSignedIn }) {
 }
 
 // Shows who is signed in and a sign-out button. Hidden on the live site until sign-in is switched on.
-async function renderAccountBar(container, onChange) {
+async function renderAccountBar(container, onChange, onProfile) {
   const session = await getSession();
   container.replaceChildren();
   if (!session && !signInRequired()) return;
   if (!session) return;
 
   const who = element("span", "muted", session.email || "Signed in");
+  const profileButton = element("button", "quiet", "Profile");
+  profileButton.type = "button";
+  if (onProfile) profileButton.addEventListener("click", onProfile);
   const out = element("button", "quiet", "Sign out");
   out.type = "button";
   out.addEventListener("click", async () => {
     await signOut();
-    await renderAccountBar(container, onChange);
+    await renderAccountBar(container, onChange, onProfile);
     if (onChange) onChange();
   });
-  container.append(who, out);
+  container.append(who);
+  if (onProfile) container.append(profileButton);
+  container.append(out);
 }
 
 captureSessionFromLink();
