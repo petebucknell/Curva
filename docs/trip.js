@@ -270,6 +270,7 @@ function render() {
 async function prefillCarName() {
   if (carNameTouched || carNameInput.value || !signInRequired()) return;
   if (!myProfile) {
+    if (!(await getSession())) return;
     try {
       myProfile = await fetchMyProfile();
     } catch {
@@ -356,7 +357,15 @@ function needProfile(message, { editing = false, retryJoin = false } = {}) {
   });
 }
 
-function editProfile() {
+async function editProfile() {
+  if (!myProfile) {
+    try {
+      myProfile = await fetchMyProfile();
+    } catch (error) {
+      if (!sessionEnded(error)) showMessage(`Couldn't load your profile: ${error.message}`);
+      return;
+    }
+  }
   needProfile("Update the name, car and avatar friends see on your trips.", { editing: true });
 }
 

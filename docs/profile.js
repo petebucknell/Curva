@@ -1,7 +1,7 @@
 // Profiles: the name, optional car and optional preset avatar a person uses on every trip.
 // The database stores only the avatar keys below, so presets can change without a migration.
 const MAX_NAME = 40;
-const MAX_CAR = 60;
+const MAX_CAR = 40; // a trip car name is limited to 40 characters
 
 // DEFAULT presets (6 colours, 4 car silhouettes). Edit here to change the set.
 const AVATAR_COLOURS = {

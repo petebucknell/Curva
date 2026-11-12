@@ -71,7 +71,7 @@ Run F2 and F3 with an account that has no profile. A profile cannot be removed f
 | F4 | On the trip, look at the join box. | It holds the profile's car, cut to 40 characters. Changing it and joining uses the changed name. With no car in the profile it holds the name. |
 | F5 | Join, then look at the Group list. | The car shows the avatar, the car name and the person's name. The legacy trip's cars show only the car name, with no avatar. |
 | F6 | Reload while signed in with a profile. | No profile step. The trip opens directly. |
-| F7 | Click Profile in the header, change the name, save. Also try Cancel. | Save returns to the trip with the new name in the group. Cancel returns with no change. |
+| F7 | Join a trip with a profile that has a car and an avatar, then RELOAD. Click Profile in the header, look at the form, then Save without changing anything. Also try Cancel. | The form shows the saved name, car and avatar (selected). Saving unchanged keeps all three; the group avatar stays. Changing the name and saving updates the group. Cancel returns with no change. |
 | F8 | Signed in as an account with no profile, open the home page. | The profile step shows and the new-trip form does not, until the profile is saved. |
 | F9 | Open the legacy trip signed out, and with the staging config. | Unchanged: the trip opens, no card, no profile step, joining takes only a car name. |
 | F10 | Viewport 390x844 on the card and the profile step. | No sideways scroll. Every button, swatch and silhouette is at least 40px high. |
