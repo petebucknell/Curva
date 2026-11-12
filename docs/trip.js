@@ -35,10 +35,14 @@ const completeButton = document.getElementById("complete-trip");
 const messageBox = document.getElementById("message");
 const signinSection = document.getElementById("signin");
 const accountBar = document.getElementById("account");
+const invitationSection = document.getElementById("invitation");
+const profileSection = document.getElementById("profile");
 
 let state = null; // { trip, cars } from the server
 let myCarId = localStorage.getItem(carKey);
 let busy = false;
+let myProfile = null;
+let carNameTouched = false;
 
 function stopName(stop) {
   return typeof stop === "string" ? stop : stop.name;
@@ -166,7 +170,21 @@ function renderGroup(cars, total, myId) {
     const count = document.createElement("span");
     count.className = "muted";
     count.textContent = carProgressText(car, total);
-    header.append(name, count);
+    const who = document.createElement("span");
+    who.className = "car-who";
+    if (car.person) {
+      // Name the person; the car name stays as the title. Legacy cars have no person.
+      const person = document.createElement("span");
+      person.className = "muted";
+      person.textContent = car.person.name;
+      const titles = document.createElement("span");
+      titles.className = "car-titles";
+      titles.append(name, person);
+      who.append(avatarNode(car.person.avatar_colour, car.person.avatar_shape, car.person.name), titles);
+    } else {
+      who.append(name);
+    }
+    header.append(who, count);
 
     const bar = document.createElement("div");
     bar.className = "progress";
@@ -233,6 +251,7 @@ function render() {
     joinSection.hidden = false;
     mineSection.hidden = true;
     renderChoices(cars);
+    prefillCarName();
   } else {
     joinSection.hidden = true;
     mineSection.hidden = false;
@@ -246,9 +265,113 @@ function render() {
   statusBox.hidden = true;
 }
 
+// Fills the join box from the profile (car, else name) until the person types their own.
+// The server only keeps 40 characters of a car name, and the profile car can be 60.
+async function prefillCarName() {
+  if (carNameTouched || carNameInput.value || !signInRequired()) return;
+  if (!myProfile) {
+    if (!(await getSession())) return;
+    try {
+      myProfile = await fetchMyProfile();
+    } catch {
+      return;
+    }
+  }
+  if (!myProfile || carNameTouched || carNameInput.value) return;
+  carNameInput.value = (myProfile.car_text || myProfile.display_name || "").slice(0, MAX_NAME);
+}
+
+function formatDate(iso) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+}
+
+function datesText(invitation) {
+  const { starts_on: starts, ends_on: ends } = invitation;
+  if (starts && ends && starts !== ends) return `${formatDate(starts)} to ${formatDate(ends)}`;
+  if (starts || ends) return formatDate(starts || ends);
+  return "";
+}
+
+// What a signed-out visitor sees on a private trip: who invited them, and nothing about the route.
+function renderInvitation(invitation) {
+  const cars = invitation.car_count === 1 ? "1 car" : `${invitation.car_count} cars`;
+  const lines = [`Invited by ${invitation.invited_by}`, datesText(invitation), `${cars} so far`].filter(Boolean);
+
+  const signUp = element("button", "primary", "Sign up to see the route and join");
+  signUp.type = "button";
+  signUp.addEventListener("click", () => {
+    signUp.hidden = true;
+    needSignIn("Enter your email and we'll send a code. Next you'll add your name.");
+  });
+
+  invitationSection.replaceChildren(
+    element("p", "label", "You're invited"),
+    element("h1", "", invitation.trip_name),
+    ...lines.map((line) => element("p", "muted", line)),
+    signUp
+  );
+  invitationSection.hidden = false;
+  document.title = `Curva · ${invitation.trip_name}`;
+}
+
+async function showInvitation() {
+  if (!invitationSection.hidden || !signinSection.hidden) return;
+  const invitation = await callFunction("trip_invitation", { p_trip: tripId });
+  if (invitation.status !== "ok") {
+    statusBox.hidden = false;
+    statusBox.textContent = "This trip doesn't exist. Check the link.";
+    return;
+  }
+  statusBox.hidden = true;
+  renderInvitation(invitation);
+}
+
+function closeProfileStep() {
+  profileSection.hidden = true;
+  profileSection.replaceChildren();
+  tripSection.hidden = !state;
+  statusBox.hidden = Boolean(state);
+  if (!state) statusBox.textContent = "Loading trip…";
+}
+
+// Shows the profile step. With `editing` it can be cancelled. With `retryJoin` the join that
+// was refused is run again once the profile is saved.
+function needProfile(message, { editing = false, retryJoin = false } = {}) {
+  if (!profileSection.hidden) return;
+  statusBox.hidden = true;
+  tripSection.hidden = true;
+  invitationSection.hidden = true;
+  signinSection.hidden = true;
+  profileSection.hidden = false;
+  mountProfileStep(profileSection, {
+    message,
+    profile: editing ? myProfile : null,
+    onSaved: async (profile) => {
+      myProfile = profile;
+      closeProfileStep();
+      await load();
+      if (retryJoin && state && !myCarId) joinNewCar();
+    },
+    onCancel: editing ? closeProfileStep : null,
+  });
+}
+
+async function editProfile() {
+  if (!myProfile) {
+    try {
+      myProfile = await fetchMyProfile();
+    } catch (error) {
+      if (!sessionEnded(error)) showMessage(`Couldn't load your profile: ${error.message}`);
+      return;
+    }
+  }
+  needProfile("Update the name, car and avatar friends see on your trips.", { editing: true });
+}
+
 // Asks the person to sign in. Built once, so the 15 second refresh doesn't wipe a half-typed code.
 function needSignIn(message) {
-  renderAccountBar(accountBar, onAccountChange);
+  renderAccountBar(accountBar, onAccountChange, editProfile);
   if (!signinSection.hidden) return;
   if (!state) statusBox.hidden = true;
   signinSection.hidden = false;
@@ -257,8 +380,9 @@ function needSignIn(message) {
     onSignedIn: () => {
       signinSection.hidden = true;
       signinSection.replaceChildren();
+      invitationSection.hidden = true;
       hideMessage();
-      renderAccountBar(accountBar, onAccountChange);
+      renderAccountBar(accountBar, onAccountChange, editProfile);
       load();
     },
   });
@@ -267,6 +391,12 @@ function needSignIn(message) {
 // After sign-out the page asks again, so a trip that needs an account is not left open.
 function onAccountChange() {
   state = null;
+  myProfile = null;
+  carNameTouched = false;
+  carNameInput.value = "";
+  invitationSection.hidden = true;
+  profileSection.hidden = true;
+  profileSection.replaceChildren();
   tripSection.hidden = true;
   statusBox.hidden = false;
   statusBox.textContent = "Loading trip…";
@@ -274,6 +404,7 @@ function onAccountChange() {
 }
 
 async function load() {
+  if (!profileSection.hidden) return; // don't pull the profile form out from under someone typing
   try {
     const data = await callFunction("get_trip", { p_id: tripId });
     if (!data) {
@@ -281,7 +412,11 @@ async function load() {
       return;
     }
     if (data.status === "sign_in_required") {
-      needSignIn("This trip is private. Sign in with your email to see it and join.");
+      await showInvitation();
+      return;
+    }
+    if (data.status === "profile_required") {
+      needProfile("Add your name so the group knows who you are. You can add a car and avatar too.");
       return;
     }
     state = data;
@@ -309,6 +444,7 @@ function applyResult(result) {
     forbidden: "You can only change your own car, and only the planner can complete the trip.",
   };
   if (messages[result.status]) showMessage(messages[result.status]);
+  if (result.status === "profile_required") needProfile("Add your name before you continue.");
   if (result.status === "sign_in_required") needSignIn("Your sign-in has ended. Sign in again to keep checking in.");
   if (result.status === "not_found") {
     myCarId = null;
@@ -369,6 +505,9 @@ async function joinNewCar() {
       state = { trip: result.trip, cars: result.cars };
       chooseCar(result.car_id);
       carNameInput.value = "";
+      carNameTouched = false;
+    } else if (result.status === "profile_required") {
+      needProfile("Add your name before you join. Your car name comes from your profile.", { retryJoin: true });
     } else if (result.status === "sign_in_required") {
       needSignIn("Sign in with your email to join this trip.");
     } else {
@@ -401,6 +540,9 @@ async function completeTrip() {
 markButton.addEventListener("click", markCar);
 undoButton.addEventListener("click", undoCar);
 joinButton.addEventListener("click", joinNewCar);
+carNameInput.addEventListener("input", () => {
+  carNameTouched = true;
+});
 carNameInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault();
@@ -417,7 +559,7 @@ completeButton.addEventListener("click", completeTrip);
 if (!tripId) {
   statusBox.textContent = "This link has no trip in it. Ask the person who shared it for the full link.";
 } else {
-  renderAccountBar(accountBar, onAccountChange);
+  renderAccountBar(accountBar, onAccountChange, editProfile);
   load();
   setInterval(() => {
     if (!busy && document.visibilityState === "visible") load();

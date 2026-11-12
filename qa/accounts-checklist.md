@@ -16,7 +16,7 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 
 | Id | Do | Expect |
 |---|---|---|
-| B1 | Sign in as planner, reload the home page. | The header shows the planner's email and a Sign out button. The new-trip form is shown. The sign-in panel is gone. |
+| B1 | Sign in as planner, reload the home page. (After section F the planner has a profile; before it, the profile step comes first.) | The header shows the planner's email, a Profile button and a Sign out button. The new-trip form is shown. The sign-in panel is gone. |
 | B2 | Create `QA planner trip` with stops `Stuttgart`, `Black Forest`, `Freiburg`. | A share link appears. |
 | B3 | Open the share link. | The trip loads with the title, three stops, and a "Which car are you?" join section. |
 | B4 | Join with the car name `QA car 1`. | The "Your car" section appears at 0 of 3. The Mark as reached button is enabled straight away, not after a refresh. |
@@ -31,7 +31,7 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 
 | Id | Do | Expect |
 |---|---|---|
-| C1 | In the friend's session (signed out), open a trip link the planner created. First create a fresh trip `QA friend trip` as planner. | A sign-in prompt and no trip details (no title, no stops). |
+| C1 | In the friend's session (signed out), open a trip link the planner created. First create a fresh trip `QA friend trip` as planner. | An invitation card with the trip name, "Invited by" and a car count, and a sign-up button. No stops, route or master link. (See F1.) |
 | C2 | Sign in as friend (`signInWithPassword`), reload. | The trip shows and the join section is offered. |
 | C3 | Join as `QA car 2`, then mark once. | 1 of 3 for the friend's car. |
 | C4 | Join again from the same account with a different name. | No second car appears. The friend keeps the same car. |
@@ -58,3 +58,21 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 | E4 | Set the viewport to 390x844 and open the home page and a trip page. | The header wraps without overlapping. No sideways scroll. Every button is at least 40px high, including Sign out. |
 | E5 | Watch the browser console through the whole run. | No uncaught errors. Report anything logged as an error. |
 | E6 | On the live-site config, `signInWithPassword` must be refused. Open `docs/config.js` as served by staging and confirm the staging URL is in use. | The page talks to the staging project only. |
+
+## F. Profiles and the invitation card
+
+Run F2 and F3 with an account that has no profile. A profile cannot be removed from the front end, so a repeat run needs a fresh account or the profile deleted in the staging SQL editor.
+
+| Id | Do | Expect |
+|---|---|---|
+| F1 | Signed out, open a trip link created by the planner. Click "Sign up to see the route and join". | The card shows the trip name as plain text, who invited them, and dates only if the trip has them. The sign-in panel appears under the card. No stops. |
+| F2 | Sign in as an account with no profile and no saved name, on that trip link. | The profile step shows before the trip: Your name, Your car (optional), avatar colours and silhouettes, with a live preview. No trip details yet. |
+| F3 | Leave the name empty and click Save and continue. Then enter `<b>x</b>`, a 60 character car, pick a colour and a silhouette, and save. | First an error asking for a name. Then the trip opens. The name shows as the literal text `<b>x</b>`, never bold. |
+| F4 | On the trip, look at the join box. | It holds the profile's car, cut to 40 characters. Changing it and joining uses the changed name. With no car in the profile it holds the name. |
+| F5 | Join, then look at the Group list. | The car shows the avatar, the car name and the person's name. The legacy trip's cars show only the car name, with no avatar. |
+| F6 | Reload while signed in with a profile. | No profile step. The trip opens directly. |
+| F7 | Join a trip with a profile that has a car and an avatar, then RELOAD. Click Profile in the header, look at the form, then Save without changing anything. Also try Cancel. | The form shows the saved name, car and avatar (selected). Saving unchanged keeps all three; the group avatar stays. Changing the name and saving updates the group. Cancel returns with no change. |
+| F8 | Signed in as an account with no profile, open the home page. | The profile step shows and the new-trip form does not, until the profile is saved. |
+| F9 | Open the legacy trip signed out, and with the staging config. | Unchanged: the trip opens, no card, no profile step, joining takes only a car name. |
+| F10 | Viewport 390x844 on the card and the profile step. | No sideways scroll. Every button, swatch and silhouette is at least 40px high. |
+| F11 | `profile_required` on join: with the trip open and signed in, make `join_car` return `profile_required` (profile deleted in the SQL editor), then click Join. | The profile step shows. After saving, the join runs again with the typed car name. Not testable from the front end alone. |

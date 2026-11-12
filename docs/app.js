@@ -141,24 +141,59 @@ copyButton.addEventListener("click", async () => {
 const signinSection = document.getElementById("signin");
 const accountBar = document.getElementById("account");
 
-// With sign-in switched on, the form waits for a session. Off, the page works as before.
+let myProfile = null;
+
+function showProfileStep(message, editing) {
+  form.hidden = true;
+  result.hidden = true;
+  signinSection.hidden = false;
+  mountProfileStep(signinSection, {
+    message,
+    profile: editing ? myProfile : null,
+    onSaved: (profile) => {
+      myProfile = profile;
+      showFormOrSignIn();
+    },
+    onCancel: editing ? showFormOrSignIn : null,
+  });
+}
+
+function editProfile() {
+  showProfileStep("Update the name, car and avatar friends see on your trips.", true);
+}
+
+// With sign-in switched on, the form waits for a session and a profile. Off, the page works as before.
 async function showFormOrSignIn() {
-  renderAccountBar(accountBar, showFormOrSignIn);
+  renderAccountBar(accountBar, showFormOrSignIn, editProfile);
   if (!signInRequired()) return;
 
   const session = await getSession();
   form.hidden = !session;
-  if (session) {
-    signinSection.hidden = true;
-    signinSection.replaceChildren();
+  if (!session) {
+    result.hidden = true;
+    signinSection.hidden = false;
+    mountSignIn(signinSection, {
+      message: "Sign in with your email to create a trip. Friends will sign in the same way to join.",
+      onSignedIn: showFormOrSignIn,
+    });
     return;
   }
-  result.hidden = true;
-  signinSection.hidden = false;
-  mountSignIn(signinSection, {
-    message: "Sign in with your email to create a trip. Friends will sign in the same way to join.",
-    onSignedIn: showFormOrSignIn,
-  });
+
+  try {
+    myProfile = await fetchMyProfile();
+  } catch (error) {
+    if (error.message.includes("[CURVA_SESSION_EXPIRED]")) return showFormOrSignIn();
+    form.hidden = true;
+    signinSection.hidden = false;
+    signinSection.replaceChildren(element("p", "error", `Couldn't load your profile: ${error.message}`));
+    return;
+  }
+  if (!myProfile) {
+    showProfileStep("Add your name before you create a trip, so friends know who invited them.", false);
+    return;
+  }
+  signinSection.hidden = true;
+  signinSection.replaceChildren();
 }
 
 addButton.addEventListener("click", addStop);

@@ -244,3 +244,25 @@ button.primary {
 .account .muted { font-size: 12px; overflow-wrap: anywhere; }
 .account button { padding: 8px 12px; min-height: 40px; font-size: 13px; }
 .step { display: flex; flex-direction: column; gap: 10px; }
+
+/* Profiles, avatars and the invitation card */
+.avatar { width: 40px; height: 40px; flex: none; border-radius: 50%; display: inline-grid; place-items: center; overflow: hidden; }
+.avatar svg { width: 100%; height: 100%; display: block; }
+.avatar.initial { background: var(--surface-2); color: var(--text); font-weight: 600; border: 1px solid var(--line); }
+.avatar-preview { display: flex; }
+.avatar-preview .avatar { width: 56px; height: 56px; font-size: 22px; }
+.profile-form { gap: 10px; }
+.choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.swatch { width: 44px; height: 44px; min-height: 40px; padding: 0; border-radius: 50%; border: 2px solid var(--line); }
+.swatch[aria-pressed="true"], .shape-choice[aria-pressed="true"] { border-color: var(--signal); outline: 2px solid var(--signal); outline-offset: 1px; }
+.shape-choice { width: 64px; min-height: 44px; padding: 6px 8px; color: var(--muted); }
+.shape-choice[aria-pressed="true"] { color: var(--text); }
+.shape-choice svg { width: 100%; height: 28px; display: block; }
+.invite { padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.invite h1 { overflow-wrap: anywhere; }
+.invite button.primary { min-height: 44px; }
+.car-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.car-titles { display: flex; flex-direction: column; min-width: 0; }
+.car-titles .muted { font-family: var(--sans); font-size: 13px; overflow-wrap: anywhere; }
+button, .icon-btn { min-height: 40px; }
+.stops button { min-height: 40px; }
