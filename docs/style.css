@@ -242,5 +242,5 @@ button.primary {
 .brand { flex-wrap: wrap; }
 .account { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .account .muted { font-size: 12px; overflow-wrap: anywhere; }
-.account button { padding: 4px 8px; font-size: 13px; }
+.account button { padding: 8px 12px; min-height: 40px; font-size: 13px; }
 .step { display: flex; flex-direction: column; gap: 10px; }

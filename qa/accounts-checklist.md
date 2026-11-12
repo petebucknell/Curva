@@ -19,8 +19,8 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 | B1 | Sign in as planner, reload the home page. | The header shows the planner's email and a Sign out button. The new-trip form is shown. The sign-in panel is gone. |
 | B2 | Create `QA planner trip` with stops `Stuttgart`, `Black Forest`, `Freiburg`. | A share link appears. |
 | B3 | Open the share link. | The trip loads with the title, three stops, and a "Which car are you?" join section. |
-| B4 | Join with the car name `QA car 1`. | The "Your car" section appears at 0 of 3. |
-| B5 | Click Mark as reached once. | 1 of 3. The next stop moves on. The group list shows the progress. |
+| B4 | Join with the car name `QA car 1`. | The "Your car" section appears at 0 of 3. The Mark as reached button is enabled straight away, not after a refresh. |
+| B5 | Click Mark as reached once. | The button reads Saving… while it works, then 1 of 3. The next stop moves on. The group list shows the progress. |
 | B6 | Click Undo last check-in. | Back to 0 of 3. |
 | B7 | Mark three times. | 3 of 3, and a message that the car reached the last stop. A fourth Mark is not possible. |
 | B8 | Click Complete trip (after `window.confirm = () => true`). | A banner says the trip is completed. Mark and Undo are disabled. |
@@ -45,7 +45,7 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 | Id | Do | Expect |
 |---|---|---|
 | D1 | In the planner's session, set `expires_at` in the `curva-session` entry of `localStorage` to a past time and reload. | The page keeps working: the session renews silently. |
-| D2 | Set the `access_token` and `refresh_token` in that entry to the text `bad` and reload a private trip. | The sign-in panel appears. No blank page, no uncaught error. |
+| D2 | Set the `access_token` and `refresh_token` in that entry to the text `bad` and reload a private trip. | The sign-in panel appears, and the header no longer shows the old email or Sign out. No blank page, no uncaught error. |
 | D3 | Sign in on a trip page, then open the home page in the same session. | Still signed in. |
 
 ## E. Safety and edges
@@ -53,8 +53,8 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 | Id | Do | Expect |
 |---|---|---|
 | E1 | Create a trip named `QA <img src=x onerror=alert(1)>` with a stop `<b>bold</b>`. | The names show as plain text. No alert, no bold stop. |
-| E2 | On the home page, add 50 stops, then try a 51st. | A message that a trip can have up to 50 stops. |
+| E2 | On the home page, add 50 stops, then try a 51st with the Add button. | The Add button is not disabled, and a message says a trip can have up to 50 stops. |
 | E3 | Create a trip with a master route link that does not start with `https://`. | A clear error, not a crash. |
-| E4 | Set the viewport to 390x844 and open the home page and a trip page. | The header wraps without overlapping. No sideways scroll. Buttons are tappable. |
+| E4 | Set the viewport to 390x844 and open the home page and a trip page. | The header wraps without overlapping. No sideways scroll. Every button is at least 40px high, including Sign out. |
 | E5 | Watch the browser console through the whole run. | No uncaught errors. Report anything logged as an error. |
 | E6 | On the live-site config, `signInWithPassword` must be refused. Open `docs/config.js` as served by staging and confirm the staging URL is in use. | The page talks to the staging project only. |

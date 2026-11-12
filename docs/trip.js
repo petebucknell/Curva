@@ -146,6 +146,7 @@ function renderMine(car, total) {
     nextNav.replaceChildren(...navButtons(next).children);
   }
 
+  markButton.textContent = busy ? "Saving…" : "Mark as reached";
   markButton.disabled = busy || done;
   undoButton.disabled = busy || done || car.reached === 0;
 }
@@ -247,6 +248,7 @@ function render() {
 
 // Asks the person to sign in. Built once, so the 15 second refresh doesn't wipe a half-typed code.
 function needSignIn(message) {
+  renderAccountBar(accountBar, onAccountChange);
   if (!signinSection.hidden) return;
   if (!state) statusBox.hidden = true;
   signinSection.hidden = false;
@@ -318,6 +320,7 @@ function applyResult(result) {
 async function runCarAction(functionName, body) {
   if (busy || !state) return;
   busy = true;
+  markButton.textContent = "Saving…";
   markButton.disabled = true;
   undoButton.disabled = true;
   hideMessage();
@@ -376,6 +379,7 @@ async function joinNewCar() {
   } finally {
     busy = false;
     joinButton.disabled = false;
+    if (state) render();
   }
 }
 
