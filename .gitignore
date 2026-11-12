@@ -1,3 +1,7 @@
 .claude/
 .DS_Store
 .gstack/
+
+# QA: local test logins and run reports
+qa/*.local.json
+qa/reports/

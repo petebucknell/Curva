@@ -46,7 +46,6 @@ function render() {
   });
 
   stopEmpty.hidden = stops.length > 0;
-  addButton.disabled = stops.length >= MAX_STOPS;
 }
 
 function moveButton(label, ariaLabel, disabled, onClick) {
