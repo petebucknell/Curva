@@ -127,6 +127,19 @@ async function verifyCode(email, code) {
   return saveSession(data, cleanEmail(email));
 }
 
+// Staging only. Lets a QA agent sign in without reading an email. It is off unless the config
+// sets devPasswordSignIn, and it refuses to run against the live project whatever the config says.
+const LIVE_PROJECT_HOST = "hkhzgxzebciutavcwfvx.supabase.co";
+
+async function signInWithPassword(email, password) {
+  const { url, devPasswordSignIn } = window.CURVA_CONFIG;
+  if (!devPasswordSignIn || url.includes(LIVE_PROJECT_HOST)) {
+    throw new Error("Test login is switched off here. [CURVA_DEV_LOGIN_OFF]");
+  }
+  const data = await authRequest("token?grant_type=password", { email: cleanEmail(email), password });
+  return saveSession(data, cleanEmail(email));
+}
+
 async function signOut() {
   const session = readSession();
   clearSession();
