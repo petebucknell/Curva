@@ -32,6 +32,12 @@ begin
     (ub, 'authenticated', 'authenticated', 'zz-test-b@example.invalid'),
     (uc, 'authenticated', 'authenticated', 'zz-test-c@example.invalid');
 
+  -- From migration 002 on, a signed-in person needs a profile to read or join an owned trip.
+  if to_regclass('public.profiles') is not null then
+    execute 'insert into public.profiles (user_id, display_name) values ($1, ''A''), ($2, ''B''), ($3, ''C'')'
+      using ua, ub, uc;
+  end if;
+
   -- 1. Legacy trips keep working with no sign-in.
   perform set_config('request.jwt.claims', claims_anon, true);
   set local role anon;
