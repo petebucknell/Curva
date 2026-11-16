@@ -4,6 +4,7 @@
 window.CURVA_CONFIG = {
   url: "https://hkhzgxzebciutavcwfvx.supabase.co",
   anonKey: "sb_publishable_x_o4VKujUDio6gdwFpbwaw_ur0ew441",
-  // Off until the accounts migration is on this project. Then trips need a signed-in person.
-  requireSignIn: false,
+  // On: trips are created by signed-in people with a profile, and friends sign up through the
+  // invitation card. Old link-only trips keep working by link. Set to false to switch it off.
+  requireSignIn: true,
 };
