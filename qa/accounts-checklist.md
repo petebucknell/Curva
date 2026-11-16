@@ -17,9 +17,9 @@ Run against staging with `./qa/serve-staging.sh`. Case ids are what the report u
 | Id | Do | Expect |
 |---|---|---|
 | B1 | Sign in as planner, reload the home page. (After section F the planner has a profile; before it, the profile step comes first.) | The header shows the planner's email, a Profile button and a Sign out button. The new-trip form is shown. The sign-in panel is gone. |
-| B2 | Create `QA planner trip` with stops `Stuttgart`, `Black Forest`, `Freiburg`. | A share link appears. |
-| B3 | Open the share link. | The trip loads with the title, three stops, and a "Which car are you?" join section. |
-| B4 | Join with the car name `QA car 1`. | The "Your car" section appears at 0 of 3. The Mark as reached button is enabled straight away, not after a refresh. |
+| B2 | Create `QA planner trip` with stops `Stuttgart`, `Black Forest`, `Freiburg`. | "Your trip is ready" appears with an "Open your trip and join" button and a link to share. The link has no `new=1` in it. |
+| B3 | Click "Open your trip and join". | The trip loads with the title and three stops. A banner says the trip is ready, tells the creator to add their car, and shows the share link (without `new=1`). The "Which car are you?" join section is shown, with the profile's car filled in. |
+| B4 | Join with the car name `QA car 1`. | The "Your car" section appears at 0 of 3, and the "trip is ready" banner is gone. The Mark as reached button is enabled straight away, not after a refresh. |
 | B5 | Click Mark as reached once. | The button reads Saving… while it works, then 1 of 3. The next stop moves on. The group list shows the progress. |
 | B6 | Click Undo last check-in. | Back to 0 of 3. |
 | B7 | Mark three times. | 3 of 3, and a message that the car reached the last stop. A fourth Mark is not possible. |

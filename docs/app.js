@@ -10,6 +10,7 @@ const errorBox = document.getElementById("error");
 const result = document.getElementById("result");
 const tripLink = document.getElementById("trip-link");
 const copyButton = document.getElementById("copy-link");
+const openTripButton = document.getElementById("open-trip");
 const createButton = form.querySelector("button[type='submit']");
 const masterInput = document.getElementById("master-url");
 
@@ -117,7 +118,7 @@ form.addEventListener("submit", async (event) => {
     url.searchParams.set("id", id);
     tripLink.value = url.href;
     result.hidden = false;
-    tripLink.select();
+    openTripButton.focus();
   } catch (error) {
     if (error.message.includes("[CURVA_SESSION_EXPIRED]")) {
       showFormOrSignIn();
@@ -127,6 +128,13 @@ form.addEventListener("submit", async (event) => {
   } finally {
     createButton.disabled = false;
   }
+});
+
+// The creator goes straight to the trip to add their car. The new=1 flag only shows them a hint.
+openTripButton.addEventListener("click", () => {
+  const url = new URL(tripLink.value);
+  url.searchParams.set("new", "1");
+  window.location.href = url.href;
 });
 
 copyButton.addEventListener("click", async () => {
