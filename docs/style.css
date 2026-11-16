@@ -238,6 +238,9 @@ button.primary {
 .car-header .muted { font-family: var(--mono); font-size: 12px; }
 .car p { margin: 0; }
 
+/* Just-created trip */
+#new-trip { display: flex; flex-direction: column; gap: 10px; }
+
 /* Sign-in */
 .brand { flex-wrap: wrap; }
 .account { display: flex; align-items: center; gap: 8px; margin-left: auto; }

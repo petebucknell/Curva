@@ -2,6 +2,7 @@ const REFRESH_MS = 15000;
 
 const tripId = new URLSearchParams(window.location.search).get("id");
 const carKey = `curva-car-${tripId}`;
+const justCreated = new URLSearchParams(window.location.search).get("new") === "1";
 
 // Brand icons are simple stand-ins. Swap in official assets if you want the real logos.
 const ICONS = {
@@ -33,6 +34,9 @@ const carsList = document.getElementById("cars-list");
 const stopList = document.getElementById("stop-list");
 const completeButton = document.getElementById("complete-trip");
 const messageBox = document.getElementById("message");
+const newTripBanner = document.getElementById("new-trip");
+const newTripLink = document.getElementById("new-trip-link");
+const copyShareButton = document.getElementById("copy-share-link");
 const signinSection = document.getElementById("signin");
 const accountBar = document.getElementById("account");
 const invitationSection = document.getElementById("invitation");
@@ -103,6 +107,14 @@ function sessionEnded(error) {
   if (!error.message.includes("[CURVA_SESSION_EXPIRED]")) return false;
   needSignIn("Your sign-in has ended. Sign in again to keep going.");
   return true;
+}
+
+// The link for friends: this page's address without the flag that marks a just-created trip.
+function shareUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("new");
+  url.hash = "";
+  return url.href;
 }
 
 function formatTime(iso) {
@@ -245,6 +257,8 @@ function render() {
   completeButton.hidden = done;
 
   const me = cars.find((car) => car.id === myCarId);
+  newTripBanner.hidden = !(justCreated && !me);
+  if (!newTripBanner.hidden) newTripLink.value = shareUrl();
   if (!me) {
     myCarId = null;
     localStorage.removeItem(carKey);
@@ -555,6 +569,14 @@ switchButton.addEventListener("click", () => {
   render();
 });
 completeButton.addEventListener("click", completeTrip);
+copyShareButton.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(shareUrl());
+    copyShareButton.textContent = "Copied";
+  } catch {
+    newTripLink.select(); // no clipboard on plain http: leave the link selected to copy by hand
+  }
+});
 
 if (!tripId) {
   statusBox.textContent = "This link has no trip in it. Ask the person who shared it for the full link.";

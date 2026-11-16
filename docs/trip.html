@@ -38,6 +38,16 @@
 
       <p id="trip-done" class="banner" hidden></p>
 
+      <!-- Shown to the person who just created the trip, until they have added their car -->
+      <div id="new-trip" class="banner" hidden>
+        <p>Your trip is ready. Add your car below to start checking off stops. Then share the link with your group.</p>
+        <label for="new-trip-link">Link to share</label>
+        <div class="row">
+          <input id="new-trip-link" type="text" readonly>
+          <button type="button" id="copy-share-link">Copy</button>
+        </div>
+      </div>
+
       <!-- Shown until this phone picks a car -->
       <section id="join" hidden>
         <h2>Which car are you?</h2>
