@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Curva</title>
+  <rect width="64" height="64" rx="14" fill="#242624"/>
+  <path d="M44.02 19.98A17 17 0 1 0 44.02 44.02" fill="none" stroke="#f2b07a" stroke-width="8" stroke-linecap="round"/>
+</svg>

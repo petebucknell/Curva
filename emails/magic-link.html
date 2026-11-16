@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="supported-color-schemes" content="dark light">
+<title>Curva</title>
+</head>
+<body style="margin:0;padding:0;background-color:#242624;">
+<!-- Inbox preview text -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#242624;">Your code to sign in to Curva. It works once and expires soon.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#242624" style="background-color:#242624;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+
+        <tr>
+          <td style="padding:0 0 24px 0;border-bottom:1px solid #3f4340;">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;color:#f3f0e8;">Curva</div>
+            <div style="font-family:Menlo,Consolas,'Courier New',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#b7b1a4;padding-top:6px;">For the love of the drive</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:32px 0 8px 0;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;color:#f3f0e8;">Your sign-in code</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 0 24px 0;">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#b7b1a4;">Use this code to sign in to Curva and pick up your trip.</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:0 0 28px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#1c1e1c" style="background-color:#1c1e1c;border:1px solid #3f4340;border-radius:12px;">
+              <tr>
+                <td align="center" style="padding:22px 12px 8px 12px;">
+                  <div style="font-family:Menlo,Consolas,'Courier New',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#b7b1a4;">Your code</div>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:0 12px 24px 12px;">
+                  <div style="font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:40px;line-height:1.2;font-weight:700;letter-spacing:0.28em;padding-left:0.28em;color:#f2b07a;">{{ .Token }}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:0 0 12px 0;">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#b7b1a4;">The code works once and expires soon. Type it into the Curva page you have open.</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:20px 0 0 0;border-top:1px solid #3f4340;">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#b7b1a4;padding-bottom:14px;">Opened this on the same device? You can also sign in with one tap.</div>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td bgcolor="#f2b07a" style="background-color:#f2b07a;border-radius:10px;">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 26px;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#242624;text-decoration:none;">Sign in to Curva</a>
+                </td>
+              </tr>
+            </table>
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.55;color:#b7b1a4;padding-top:12px;">If the button opens in the wrong app or browser, use the code instead.</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:32px 0 0 0;">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.55;color:#b7b1a4;">Didn&rsquo;t ask for this? You can ignore this email. Nobody can sign in without the code.</div>
+            <div style="font-family:Menlo,Consolas,'Courier New',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#b7b1a4;padding-top:14px;">Curva &middot; curva.uk</div>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
